@@ -7,6 +7,7 @@
   <body>
     <?php include('templates/includes_tpl.php'); ?>
     <?php include('templates/header_tpl.php'); ?>
+    <?php include('templates/body_tpl.php'); ?>
     <?php include('templates/footer_tpl.php'); ?>
   </body>
 </html>

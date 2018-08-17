@@ -5,6 +5,8 @@
     <title></title>
   </head>
   <body>
-<p>Footer</p>
+  	<footer class="w-full pin-b text-center border-t border-grey p-4">
+  		Footer
+  	</footer>
   </body>
 </html>
