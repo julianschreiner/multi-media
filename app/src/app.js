@@ -1,11 +1,3 @@
-firebase.initializeApp({
-  apiKey: "AIzaSyDDmLSI2RfUUP8MwbYnG7ZdqnMdQ643sWI",
-    authDomain: "test-45b6b.firebaseapp.com",
-    databaseURL: "https://test-45b6b.firebaseio.com",
-    projectId: "test-45b6b",
-    storageBucket: "test-45b6b.appspot.com",
-    messagingSenderId: "358659034120"
-});
 
 
 
