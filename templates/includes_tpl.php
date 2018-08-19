@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8">
     <title>Multi-Media</title>
+       <script src="https://www.gstatic.com/firebasejs/5.3.0/firebase.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.3.0/firebase-firestore.js"></script>
+
         <!-- VUE -->
         <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>

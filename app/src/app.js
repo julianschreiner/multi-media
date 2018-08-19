@@ -1,3 +1,34 @@
+firebase.initializeApp({
+  apiKey: "AIzaSyDDmLSI2RfUUP8MwbYnG7ZdqnMdQ643sWI",
+    authDomain: "test-45b6b.firebaseapp.com",
+    databaseURL: "https://test-45b6b.firebaseio.com",
+    projectId: "test-45b6b",
+    storageBucket: "test-45b6b.appspot.com",
+    messagingSenderId: "358659034120"
+});
+
+
+
+// Initialize Cloud Firestore through Firebase
+var db = firebase.firestore();
+
+db.collection("users").get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data().first}`);
+    });
+});
+
+
+// Define a new component called video-container
+Vue.component('header-container', {
+  data: function() {
+  	return {
+  		message: 'ss'
+  	}
+  },
+  template: '<video>{{ message }}</video>'
+});
+
 var app = new Vue({
   el: '#app',
   data: {
@@ -14,8 +45,23 @@ var app = new Vue({
     iconType: 'fas fa-play',
     iconTypeOGG: 'fas fa-play',
     iconTypeWAVE: 'fas fa-play',
+    durationGeneral: 0,
+    duration: 0,
     durationOGG: 0,
-    progress: '40%'
+    durationWAVE: 0,
+    progress: '0%',
+    progressOGG: '0%',
+    progressWAVE: '0%',
+    myInterval: 0,
+    myIntervalOGG: 0,
+    generalVolume: 1,								// STD Value
+    valueOfSlider: 0,
+    maxValueSlider: 100,	
+    minValueSlider: 0,
+    valueOfSliderOGG: 0,
+    maxValueSliderOGG: 100,
+    minValueSliderOGG: 0,
+    pausePressed: false		
   },
 
   methods: {
@@ -27,25 +73,61 @@ var app = new Vue({
   		this.loaded = true;
   	},
   	playAudio(sound) {
+  		var temp = '';
   		if(!this.soundPlaying){
   			var audio = new Audio(sound);
   			this.setAudio(audio);
   			audio.play();
-  			console.log(audio);
-  			console.log(audio.src);
+  			audio.volume = this.generalVolume;
+  			console.log("VOLUME: ", audio.volume);
+  
   			setTimeout(function(){
-  				console.log(audio.duration);
-  				this.durationOGG = audio.duration;
-  			}, 100);
-  		
+  				app.durationGeneral = audio.duration;
 
+  				if(app.duration != 0 && app.pausePressed){
+  					audio.currentTime = app.durationGeneral - app.duration;
+
+  				}
+  				else{
+  					app.duration = parseInt(Math.ceil(audio.duration));
+  				}
+  				console.log("Duration: ", app.duration);
+  				
+  				// PROGRESS BAR
+  				var myvar = window.setInterval(incProgress, app.duration * 10);
+  				app.setMyInterval(myvar);
+
+  				console.log("this.interval START:" , app.getMyInterval());
+
+  				function incProgress() {
+  					var temp = app.progress.substring(0, app.progress.length-1);
+  				
+  					if(temp < 100){
+  						temp++;
+  						app.duration--;	
+  					}
+  					else{
+  						window.clearInterval(myvar);
+  					}
+
+  					app.progress = temp + '%';
+  				}
+
+  			}, 100);
+  			
+  				  		
   			this.playTitle = 'Stop Sound';
   			this.soundPlaying = true;
   			this.iconType = 'fas fa-pause';
   		}
   		else{
+  			console.log("this.interval STOP: ", this.getMyInterval());		// 0
+  			console.log("DURATION ON STOP: ", this.duration);
+  			this.pausePressed = true;
+
   			var audio = this.getAudio();
   			audio.pause();
+  			this.resetProgress(this.getMyInterval());
 
   			this.playTitle = 'Play Sound';
   			this.soundPlaying = false;
@@ -57,6 +139,34 @@ var app = new Vue({
   			var audio = new Audio(sound);
   			this.setAudioOGG(audio);
   			audio.play();
+  			audio.volume = this.generalVolume;
+
+  			console.log("VOLUME: ", audio.volume);
+  
+  			setTimeout(function(){
+  				this.durationOGG = Math.ceil(audio.duration);
+  				console.log("Duration:" , this.durationOGG);
+
+  				// PROGRESS BAR
+  				var myvar = window.setInterval(incProgress, this.durationOGG * 10);
+  				app.setMyIntervalOGG(myvar);
+
+  				console.log("this.interval START:" , app.getMyIntervalOGG());
+
+  				function incProgress() {
+  					var temp = app.progressOGG.substring(0, app.progressOGG.length-1);
+  				
+  					if(temp < 100){
+  						temp++;	
+  					}
+  					else{
+  						window.clearInterval(myvar);
+  					}
+
+  					app.progressOGG = temp + '%';
+  				}
+
+  			}, 100);
 
 
   			this.playTitleOGG = 'Stop Sound';
@@ -64,8 +174,10 @@ var app = new Vue({
   			this.iconTypeOGG = 'fas fa-pause';
   		}
   		else{
+  			console.log("this.interval STOP: ", this.getMyIntervalOGG());		// 0
   			var audio = this.getAudioOGG();
   			audio.pause();
+  			this.resetProgressOGG(this.getMyIntervalOGG());
 
   			this.playTitleOGG = 'Play Sound';
   			this.soundPlayingOGG = false;
@@ -75,20 +187,21 @@ var app = new Vue({
   	playAudioWAVE(sound) {
   		if(!this.soundPlayingWAVE){
   			var audio = new Audio(sound);
-  			this.setAudioWAVE(audio);
   			audio.play();
+  			audio.volume = this.generalVolume;
 
+			this.setAudioWAVE(audio);
   			this.playTitleWAVE = 'Stop Sound';
   			this.soundPlayingWAVE = true;
   			this.iconTypeWAVE = 'fas fa-pause';
   		}
   		else{
-  			var audio = this.getAudioOGG();
+  			var audio = this.getAudioWAVE();
   			audio.pause();
 
-  			this.playTitleOGG = 'Play Sound';
-  			this.soundPlayingOGG = false;
-  			this.iconTypeOGG = 'fas fa-play';
+  			this.playTitleWAVE = 'Play Sound';
+  			this.soundPlayingWAVE = false;
+  			this.iconTypeWAVE = 'fas fa-play';
   		}
   	},
   	setAudio(audio){
@@ -98,16 +211,46 @@ var app = new Vue({
   		return this.audioOBJ;
   	},
   	setAudioOGG(audio){
-  		this.audioOBJOGG = audio;
+  		this.audioOBJ_OGG = audio;
   	},
   	getAudioOGG(){
-  		return this.audioOBJOGG;
+  		return this.audioOBJ_OGG;
   	},
   	setAudioWAVE(audio){
-  		this.audioOBJWAVE = audio;
+  		this.audioOBJ_WAVE = audio;
   	},
   	getAudioWAVE(){
-  		return this.audioOBJWAVE;
+  		return this.audioOBJ_WAVE;
+  	},
+  	setMyInterval(m_interval){
+  		this.myInterval = m_interval;
+  	},
+  	getMyInterval(){
+  		return this.myInterval;
+  	},
+  	setMyIntervalOGG(m_interval){
+  		this.myIntervalOGG = m_interval;
+  	},
+  	getMyIntervalOGG(){
+  		return this.myIntervalOGG;
+  	},
+  	resetProgress(intervalID){
+  		this.progress = '0%';
+  		window.clearInterval(intervalID);
+  	},
+  	resetProgressOGG(intervalID){
+  		this.progressOGG = '0%';
+  		window.clearInterval(intervalID);
+  	},
+  	sliderChanged(e){
+  		this.valueOfSlider = e.target.value;
+  		
+  		this.generalVolume = parseFloat(this.valueOfSlider) / 100;
+  		console.log("VOLUME: ", this.generalVolume);
+  		
+  		let audio = this.getAudio();
+  		audio.volume = this.generalVolume;
+  		window.localStorage.setItem('volume', this.generalVolume);
   	}
   },
 
@@ -123,23 +266,19 @@ var app = new Vue({
   			})
   			.finally(() => {
 				setTimeout(function(){
-					console.log("time");
-                	app.setLoad()
+                	app.setLoad();
             	}, 2000);
-  				
   			});
 
-  			window.setInterval( function() {
- 				var temp = app.progress.substring(0, app.progress.length-1);
-  				console.log(temp);
+  		let volumeStorage = window.localStorage.getItem('volume');
 
-  				if(temp < 100){
-  					temp++;	
-  				}
-  				
-  				app.progress = temp + '%';
-
-			}, 400)	  			
+  		if(!volumeStorage){
+  			window.localStorage.setItem('volume', this.generalVolume);
+  		}
+  		else{
+  			this.generalVolume = parseFloat(volumeStorage);
+  			this.valueOfSlider = parseFloat(volumeStorage) * 100;
+  		}
   },
   computed: {
   	progressObject: function(){
@@ -149,4 +288,6 @@ var app = new Vue({
   	}
   }
 });
+
+
 
